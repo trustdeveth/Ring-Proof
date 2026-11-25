@@ -2,34 +2,35 @@ import { useEffect, useRef, useState } from 'react'
 
 type Line = { t: string; cls?: string; pause?: number }
 
-/** A printed "proof receipt" that types itself out when scrolled into view. */
+/** A receipt that prints out of a slot, line by line, when scrolled into view. */
 export default function ProofReceipt({ ticker }: { ticker: string }) {
   const script: Line[] = [
-    { t: 'RINGPROOF / BROWSER PROVER', cls: 'r-head', pause: 200 },
-    { t: '--------------------------------', cls: 'r-rule', pause: 100 },
+    { t: 'RINGPROOF / HOLDER PROOF', cls: 'r-head', pause: 200 },
+    { t: '--------------------------------', cls: 'r-rule', pause: 80 },
     { t: `TOKEN ............ ${ticker}`, pause: 120 },
-    { t: 'CLAIM ............ HOLDS >= 1,000,000', pause: 300 },
-    { t: '--------------------------------', cls: 'r-rule', pause: 100 },
-    { t: 'ring notes found ........... 7', pause: 220 },
-    { t: 'decrypted locally .......... OK', pause: 220 },
-    { t: 'witness: sum(notes) >= min . OK', pause: 220 },
-    { t: 'zk range proof ............. 1.84s', pause: 300 },
-    { t: '--------------------------------', cls: 'r-rule', pause: 100 },
-    { t: 'AMOUNT ........... ██████████', cls: 'r-redact', pause: 120 },
-    { t: 'WALLETS .......... ██████████', cls: 'r-redact', pause: 120 },
-    { t: 'HISTORY .......... ██████████', cls: 'r-redact', pause: 300 },
-    { t: '--------------------------------', cls: 'r-rule', pause: 100 },
-    { t: 'PROOF  0x9f3a...c21e', cls: 'r-strong', pause: 200 },
-    { t: 'RESULT VALID', cls: 'r-valid', pause: 3200 },
+    { t: 'CLAIM ............ HOLDS >= 1,000,000', pause: 260 },
+    { t: '--------------------------------', cls: 'r-rule', pause: 80 },
+    { t: 'wallet signature ........... OK', pause: 200 },
+    { t: 'balance read on-chain ...... OK', pause: 200 },
+    { t: 'balance >= threshold ....... OK', pause: 200 },
+    { t: 'proof sealed ............... OK', pause: 260 },
+    { t: '--------------------------------', cls: 'r-rule', pause: 80 },
+    { t: 'WALLET ........... ██████████', pause: 120 },
+    { t: 'BALANCE .......... ██████████', pause: 120 },
+    { t: 'HISTORY .......... ██████████', pause: 260 },
+    { t: '--------------------------------', cls: 'r-rule', pause: 80 },
+    { t: 'PROOF  rp2_9f3a...c21e', cls: 'r-strong', pause: 200 },
+    { t: 'RESULT VALID', cls: 'r-valid', pause: 3800 },
   ]
-  const [lines, setLines] = useState<Line[]>([])
+  const [n, setN] = useState(0) // fully printed lines
+  const [partial, setPartial] = useState('')
   const [started, setStarted] = useState(false)
   const box = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const el = box.current
     if (!el) return
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setStarted(true), { threshold: 0.3 })
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setStarted(true), { threshold: 0.35 })
     io.observe(el)
     return () => io.disconnect()
   }, [])
@@ -40,22 +41,25 @@ export default function ProofReceipt({ ticker }: { ticker: string }) {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
     ;(async () => {
       while (!cancelled) {
-        setLines([])
-        for (const l of script) {
-          if (cancelled) return
-          for (let i = 1; i <= l.t.length; i += 2) {
+        setN(0)
+        setPartial('')
+        await sleep(500)
+        for (let i = 0; i < script.length; i++) {
+          const l = script[i]
+          for (let c = 2; c <= l.t.length + 1; c += 2) {
             if (cancelled) return
-            const part = l.t.slice(0, i + 1)
-            setLines((prev) => {
-              const next = prev.slice()
-              if (i === 1) next.push({ ...l, t: part })
-              else next[next.length - 1] = { ...l, t: part }
-              return next
-            })
-            await sleep(12)
+            setPartial(l.t.slice(0, c))
+            await sleep(11)
           }
+          setN(i + 1)
+          setPartial('')
           await sleep(l.pause ?? 200)
         }
+        // tear off and print a fresh one
+        if (cancelled) return
+        box.current?.classList.add('is-tear')
+        await sleep(700)
+        box.current?.classList.remove('is-tear')
       }
     })()
     return () => {
@@ -64,17 +68,28 @@ export default function ProofReceipt({ ticker }: { ticker: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started])
 
+  const shown = n + (partial ? 1 : 0)
+  const progress = shown / script.length
+
+  // the paper rises out of a slot at the bottom, so the first line leads
   return (
-    <div className="receipt" ref={box}>
-      <div className="receipt__paper">
-        {lines.map((l, i) => (
-          <div key={i} className={`receipt__line ${l.cls ?? ''}`}>
-            {l.t}
+    <div className="printer" ref={box}>
+      <div className="printer__clip">
+        <div className="receipt" style={{ transform: `translateY(${((1 - progress) * 100).toFixed(2)}%)` }}>
+          <div className="receipt__edge" aria-hidden="true" />
+          <div className="receipt__paper">
+            {script.map((l, i) => (
+              <div key={i} className={`receipt__line ${l.cls ?? ''}`}>
+                {i < n ? l.t : i === n ? partial || ' ' : ' '}
+              </div>
+            ))}
           </div>
-        ))}
-        {lines.length === 0 && <div className="receipt__line">&nbsp;</div>}
+        </div>
       </div>
-      <div className="receipt__edge" aria-hidden="true" />
+      <div className="printer__slot" aria-hidden="true">
+        <span className="printer__led" data-on={partial ? '1' : '0'} />
+        <span className="mono">RP-01 · proof printer</span>
+      </div>
     </div>
   )
 }

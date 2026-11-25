@@ -29,21 +29,25 @@ const DESKTOP: Pose[] = [
   /* how end   */ { x: 2.7, y: -0.25, z: -1, ry: -0.6, s: 0.9, ...crossing(-2.6), ring: 1, tags: 1 },
   /* exit      */ { x: 12, y: -0.25, z: -1, ry: -0.6, s: 0.9, ...crossing(-2.6), ring: 0, tags: 0 },
   // teleport (1px apart, both off-screen) then wait off-screen left until the footer
-  /* re-enter  */ { x: -12, y: -1.05, z: 0, ry: -0.15, s: 0.78, wx: 0, split: -3, ring: 0, tags: 0 },
-  /* hold      */ { x: -12, y: -1.05, z: 0, ry: -0.15, s: 0.78, wx: 0, split: -3, ring: 0, tags: 0 },
-  /* footer    */ { x: 0, y: -1.05, z: 0, ry: -0.15, s: 0.78, wx: 0, split: -3, ring: 0, tags: 0 },
+  /* re-enter  */ { x: -12, y: -1.45, z: 0, ry: -0.15, s: 0.6, wx: 0, split: -3, ring: 0, tags: 0 },
+  /* hold      */ { x: -12, y: -1.45, z: 0, ry: -0.15, s: 0.6, wx: 0, split: -3, ring: 0, tags: 0 },
+  /* footer    */ { x: 0, y: -1.45, z: 0, ry: -0.15, s: 0.6, wx: 0, split: -3, ring: 0, tags: 0 },
 ]
 
 const toMobile = (p: Pose, i: number): Pose => ({
   ...p,
   x: p.x * (Math.abs(p.x) > 8 ? 1 : 0.15),
-  y: i >= 5 ? -1.6 : i >= 2 ? 1.85 : 1.35,
+  y: i >= 5 ? -0.95 : i >= 2 ? 1.85 : i === 0 ? 0.9 : 1.35,
   s: p.s * 0.5,
 })
 const MOBILE = DESKTOP.map(toMobile)
 
 export const scroll = {
   smooth: 0,
+  /** 0..1, set by the footer "go dark" ScrollTrigger */
+  dark: 0,
+  /** 0..1, set by the intro timeline (whale fades/swims in) */
+  intro: 0,
   keys: [0, 1, 2, 3, 4, 5, 6, 7] as number[],
 }
 

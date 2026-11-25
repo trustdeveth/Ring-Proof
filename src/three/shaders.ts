@@ -38,9 +38,10 @@ export const inkFragment = /* glsl */ `
   uniform float uSplit;
   uniform float uDpr;
   uniform float uDot;
-  uniform vec3 uInk;
-  uniform vec3 uPaper;
+  uniform vec3 uInkC;
+  uniform vec3 uPaperC;
   uniform vec3 uRed;
+  uniform float uDark;
   varying vec3 vNormal;
   varying vec3 vViewPos;
   varying vec3 vLocal;
@@ -48,6 +49,9 @@ export const inkFragment = /* glsl */ `
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
   void main() {
+    // in the dark footer the page is ink, so ink and paper swap roles
+    vec3 uInk = mix(uInkC, uPaperC, uDark);
+    vec3 uPaper = mix(uPaperC, uInkC, uDark);
     vec2 px = gl_FragCoord.xy / uDpr;
     float d = uSplit - vLocal.x;
 
@@ -91,6 +95,39 @@ export const outlineVertex = /* glsl */ `
 `
 
 export const outlineFragment = /* glsl */ `
-  uniform vec3 uInk;
-  void main() { gl_FragColor = vec4(uInk, 1.0); }
+  uniform vec3 uInkC;
+  uniform vec3 uPaperC;
+  uniform float uDark;
+  void main() { gl_FragColor = vec4(mix(uInkC, uPaperC, uDark), 1.0); }
+`
+
+/** Rising bubbles: ink rings, camera-facing points. */
+export const bubbleVertex = /* glsl */ `
+  attribute float aSize;
+  attribute float aLife;
+  uniform float uDpr;
+  varying float vLife;
+  void main() {
+    vLife = aLife;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * mv;
+    gl_PointSize = aSize * uDpr * (10.0 / -mv.z) * smoothstep(0.0, 0.15, aLife);
+  }
+`
+
+export const bubbleFragment = /* glsl */ `
+  uniform vec3 uInkC;
+  uniform vec3 uPaperC;
+  uniform float uDark;
+  varying float vLife;
+  void main() {
+    if (vLife <= 0.0) discard;
+    vec2 c = gl_PointCoord - 0.5;
+    float r = length(c);
+    float ring = smoothstep(0.5, 0.44, r) * smoothstep(0.30, 0.36, r);
+    float shine = smoothstep(0.12, 0.05, length(c - vec2(-0.13, 0.13)));
+    float a = max(ring, shine) * smoothstep(0.0, 0.3, vLife);
+    if (a < 0.5) discard;
+    gl_FragColor = vec4(mix(uInkC, uPaperC, uDark), 1.0);
+  }
 `

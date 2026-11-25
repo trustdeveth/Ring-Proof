@@ -1,8 +1,8 @@
 export function Logo({ size = 22 }: { size?: number }) {
   return (
     <svg className="logo" viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
-      <circle cx="16" cy="16" r="10.5" fill="none" stroke="currentColor" strokeWidth="3.5" />
-      <rect x="9.5" y="14" width="13" height="4" fill="var(--red)" />
+      <path d="M25.9 13.2A11 11 0 1 1 19.1 5.4" fill="none" stroke="currentColor" strokeWidth="3.5" />
+      <path d="m12 14.5 4.5 4.5L28 7.5" fill="none" stroke="var(--red, #e23a1e)" strokeWidth="3.5" strokeLinejoin="miter" />
     </svg>
   )
 }

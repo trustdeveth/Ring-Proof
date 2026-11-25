@@ -79,13 +79,13 @@ function Connect() {
     <div className="connect">
       <div className="connect__whale" aria-hidden="true">
         <Suspense fallback={null}>
-          <MiniWhale redacted={false} />
+          <MiniWhale shades={false} />
         </Suspense>
       </div>
       <div className="connect__card sheet" data-anim>
-        <p className="label">File No. 001 — Access</p>
+        <p className="label">Anon mode</p>
         <h1 className="connect__title">
-          Open your <em>file.</em>
+          Go <em>anon.</em>
         </h1>
         <p className="muted">
           Connect a Solana wallet to prove what you hold — without the group ever seeing which wallet is yours.
@@ -131,7 +131,7 @@ function Shell() {
     <div className="app">
       <header className="topbar">
         <a href="/" className="brand" aria-label="RingProof home">
-          <Logo /> RingProof
+          <Logo size={26} /> RingProof
         </a>
         <span className="netpill netpill--live mono" title="Balances are read live from Solana mainnet">
           <i /> Mainnet

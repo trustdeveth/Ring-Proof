@@ -20,7 +20,7 @@ export default function Vault() {
         label="Vault"
         title={
           <>
-            Your <em>file.</em>
+            Your <em>bag.</em>
           </>
         }
         lead="What the world can see about this wallet — and the proofs that let you show less."

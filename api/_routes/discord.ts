@@ -10,12 +10,12 @@
  * POST /api/discord           → interactions (ed25519-signed by Discord)
  */
 import { waitUntil } from '@vercel/functions'
-import { json } from './_lib/http.js'
-import { hasKv, kvCreate, kvDel, kvGet, kvKeys, kvSet } from './_lib/kv.js'
-import { checkProof, claim, meetsGate, openGate } from './_lib/proof.js'
-import { DcError, PERM, canManage, dc, hasDiscord, installUrl, verifyInteraction } from './_lib/discord.js'
-import { siteOrigin } from './_lib/telegram.js'
-import type { GatePayload, ProofPayload } from './_lib/types.js'
+import { json } from '../_lib/http.js'
+import { hasKv, kvCreate, kvDel, kvGet, kvKeys, kvSet } from '../_lib/kv.js'
+import { checkProof, claim, meetsGate, openGate } from '../_lib/proof.js'
+import { DcError, PERM, canManage, dc, hasDiscord, installUrl, verifyInteraction } from '../_lib/discord.js'
+import { siteOrigin } from '../_lib/telegram.js'
+import type { GatePayload, ProofPayload } from '../_lib/types.js'
 
 type Opt = { name: string; type: number; value: string }
 type Interaction = {

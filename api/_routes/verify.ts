@@ -1,5 +1,5 @@
-import { json, readJson } from './_lib/http.js'
-import { checkProof } from './_lib/proof.js'
+import { json, readJson } from '../_lib/http.js'
+import { checkProof } from '../_lib/proof.js'
 
 /** POST /api/verify { code } — returns the claim only, never a wallet or balance. */
 export async function POST(req: Request) {

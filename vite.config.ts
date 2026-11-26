@@ -14,13 +14,8 @@ function vercelApiDev(): Plugin {
       server.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/api/')) return next()
         const route = req.url.split('?')[0].replace(/^\/api\//, '').replace(/\/$/, '')
-        let file = path.resolve(server.config.root, 'api', `${route}.ts`)
-        // dynamic segment, like Vercel: api/spr/[method].ts serves /api/spr/<anything>
-        if (!fs.existsSync(file) && route.includes('/')) {
-          const dir = path.resolve(server.config.root, 'api', route.slice(0, route.lastIndexOf('/')))
-          const dyn = fs.existsSync(dir) ? fs.readdirSync(dir).find((f) => /^\[[a-z]+\]\.ts$/i.test(f)) : undefined
-          if (dyn) file = path.join(dir, dyn)
-        }
+        // same as production: every /api/* goes through api/router.ts
+        const file = path.resolve(server.config.root, 'api', 'router.ts')
         if (route.startsWith('_') || !fs.existsSync(file)) {
           res.statusCode = 404
           return res.end(JSON.stringify({ error: 'Not found' }))

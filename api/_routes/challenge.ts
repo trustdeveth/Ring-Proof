@@ -1,6 +1,6 @@
-import { json, readJson } from './_lib/http.js'
-import { isAddress } from './_lib/b58.js'
-import { challengeMessage, domainOf, makeNonce } from './_lib/challenge.js'
+import { json, readJson } from '../_lib/http.js'
+import { isAddress } from '../_lib/b58.js'
+import { challengeMessage, domainOf, makeNonce } from '../_lib/challenge.js'
 
 /** POST /api/challenge { owner } → the exact message the wallet must sign. */
 export async function POST(req: Request) {

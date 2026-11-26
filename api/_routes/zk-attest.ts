@@ -8,14 +8,14 @@
  * the tag, so one holder gets one id per gate — bots admit it once — while different gates can't link holders.
  */
 import * as snarkjs from 'snarkjs'
-import { json, readJson } from './_lib/http.js'
-import { isAddress } from './_lib/b58.js'
-import { b64u, hmac, open, randomId, seal } from './_lib/seal.js'
-import { InvalidParamError, RpcError, SOL, assetInfo, rpc, toBaseUnits } from './_lib/solana.js'
-import { EXPIRY_DAYS, type GatePayload, type ProofPayload } from './_lib/types.js'
-import { assetField, bigIntToBytes32, poseidonReady } from './_lib/spr.js'
+import { json, readJson } from '../_lib/http.js'
+import { isAddress } from '../_lib/b58.js'
+import { b64u, hmac, open, randomId, seal } from '../_lib/seal.js'
+import { InvalidParamError, RpcError, SOL, assetInfo, rpc, toBaseUnits } from '../_lib/solana.js'
+import { EXPIRY_DAYS, type GatePayload, type ProofPayload } from '../_lib/types.js'
+import { assetField, bigIntToBytes32, poseidonReady } from '../_lib/spr.js'
 import { getTreeAddress } from '@heliuslabs/spr/addresses'
-import { VERIFICATION_KEY, scopeField } from './_lib/zk.js'
+import { VERIFICATION_KEY, scopeField } from '../_lib/zk.js'
 
 type Body = { proof: unknown; publicSignals: string[]; asset: string; min: string; expiryDays: number; gate?: string }
 

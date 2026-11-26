@@ -1,9 +1,9 @@
-import { json, readJson } from './_lib/http.js'
-import { isAddress } from './_lib/b58.js'
-import { CHALLENGE_TTL_MS, challengeMessage, domainOf, makeNonce, verifyWalletSignature } from './_lib/challenge.js'
-import { open, randomId, seal } from './_lib/seal.js'
-import { InvalidParamError, RpcError, SOL, assetInfo, holding, toBaseUnits } from './_lib/solana.js'
-import { EXPIRY_DAYS, type GatePayload, type ProofPayload } from './_lib/types.js'
+import { json, readJson } from '../_lib/http.js'
+import { isAddress } from '../_lib/b58.js'
+import { CHALLENGE_TTL_MS, challengeMessage, domainOf, makeNonce, verifyWalletSignature } from '../_lib/challenge.js'
+import { open, randomId, seal } from '../_lib/seal.js'
+import { InvalidParamError, RpcError, SOL, assetInfo, holding, toBaseUnits } from '../_lib/solana.js'
+import { EXPIRY_DAYS, type GatePayload, type ProofPayload } from '../_lib/types.js'
 
 type Body = {
   owner: string

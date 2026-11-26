@@ -9,12 +9,12 @@
  * GET  /api/telegram?setup=1    → registers this deployment's webhook + commands (idempotent)
  * POST /api/telegram            → Telegram updates (checked with the secret token header)
  */
-import { json } from './_lib/http.js'
-import { b64u, hasSecret, hmac } from './_lib/seal.js'
-import { hasKv, kvCreate, kvDel, kvGet, kvSet } from './_lib/kv.js'
-import { checkProof, claim, meetsGate, openGate } from './_lib/proof.js'
-import { TgError, botUsername, esc, hasBot, send, siteOrigin, tg, webhookSecret } from './_lib/telegram.js'
-import type { GatePayload, ProofPayload } from './_lib/types.js'
+import { json } from '../_lib/http.js'
+import { b64u, hasSecret, hmac } from '../_lib/seal.js'
+import { hasKv, kvCreate, kvDel, kvGet, kvSet } from '../_lib/kv.js'
+import { checkProof, claim, meetsGate, openGate } from '../_lib/proof.js'
+import { TgError, botUsername, esc, hasBot, send, siteOrigin, tg, webhookSecret } from '../_lib/telegram.js'
+import type { GatePayload, ProofPayload } from '../_lib/types.js'
 
 type User = { id: number; is_bot?: boolean; first_name?: string; username?: string }
 type Chat = { id: number; type: 'private' | 'group' | 'supergroup' | 'channel'; title?: string }

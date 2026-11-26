@@ -1,6 +1,6 @@
-import { json } from './_lib/http.js'
-import { isAddress } from './_lib/b58.js'
-import { RpcError, SOL, assetInfo, fromBaseUnits, holding } from './_lib/solana.js'
+import { json } from '../_lib/http.js'
+import { isAddress } from '../_lib/b58.js'
+import { RpcError, SOL, assetInfo, fromBaseUnits, holding } from '../_lib/solana.js'
 
 /**
  * GET /api/balance?owner=<address>[&asset=<mint>] — public balances for the user's own dashboard:

@@ -2,10 +2,10 @@
  * GET  /api/fee  → current gate fee + a fresh blockhash, so the app can build the fee transaction.
  * POST /api/fee  { tx } → relays the wallet-signed fee transaction to Solana (only transactions that pay this fee).
  */
-import { json, readJson } from './_lib/http.js'
-import { feeConfig } from './_lib/fees.js'
-import { RpcError, rpc } from './_lib/solana.js'
-import { b58decode } from './_lib/b58.js'
+import { json, readJson } from '../_lib/http.js'
+import { feeConfig } from '../_lib/fees.js'
+import { RpcError, rpc } from '../_lib/solana.js'
+import { b58decode } from '../_lib/b58.js'
 
 export async function GET() {
   try {

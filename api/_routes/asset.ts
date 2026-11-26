@@ -1,6 +1,6 @@
-import { json } from './_lib/http.js'
-import { isAddress } from './_lib/b58.js'
-import { RpcError, SOL, assetInfo } from './_lib/solana.js'
+import { json } from '../_lib/http.js'
+import { isAddress } from '../_lib/b58.js'
+import { RpcError, SOL, assetInfo } from '../_lib/solana.js'
 
 /** GET /api/asset?id=<mint|SOL> — decimals + symbol for the UI. */
 export async function GET(req: Request) {

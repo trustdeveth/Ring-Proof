@@ -2,9 +2,9 @@
  * GET /api/discord-cron — daily (vercel.json "crons"). Removes Parhelion holder roles whose proof has expired,
  * so a role always reflects a current proof. Idempotent: running it early only removes already-expired roles.
  */
-import { json } from './_lib/http.js'
-import { kvDel, kvKeys } from './_lib/kv.js'
-import { DcError, dc, hasDiscord } from './_lib/discord.js'
+import { json } from '../_lib/http.js'
+import { kvDel, kvKeys } from '../_lib/kv.js'
+import { DcError, dc, hasDiscord } from '../_lib/discord.js'
 
 export async function GET(req: Request) {
   const cronSecret = process.env.CRON_SECRET

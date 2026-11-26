@@ -183,6 +183,11 @@ body[data-theme='ink'] .btn, body[data-theme='blue'] .btn { box-shadow: 4px 4px 
 }
 .ca__k { padding: 4px 10px; border-radius: 9px; background: var(--ink); color: var(--yellow); font-weight: 700; }
 .ca__v { padding-right: 6px; }
+.ca__copy { display: inline-flex; align-items: center; gap: 10px; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0 4px 0 0; }
+.ca__short { display: none; }
+.ca__hint { padding: 3px 8px; border-radius: 8px; background: var(--yellow); color: var(--ink); font-weight: 700; border: 2px solid var(--ink); }
+.ca__copy:hover .ca__hint { background: var(--pink); }
+@media (max-width: 640px) { .ca__full { display: none; } .ca__short { display: inline; } }
 .ca__socials { display: inline-flex; gap: 6px; padding-left: 10px; border-left: 2px solid var(--ink); }
 .ca__socials a { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; transition: background .2s, transform .2s var(--bounce); }
 .ca__socials a:hover { background: var(--yellow); transform: rotate(-8deg); }
@@ -378,3 +383,4 @@ body[data-theme='ink'] .btn, body[data-theme='blue'] .btn { box-shadow: 4px 4px 
 @media (prefers-reduced-motion: reduce) {
   .spin__ring, .ghost, .live { animation: none; }
 }
+.ca-warn { margin-top: 12px; font-family: var(--mono); font-size: 13px; opacity: .75; }

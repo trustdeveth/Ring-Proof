@@ -1,0 +1,15 @@
+[0:00] This is Parhelion.
+[0:04] On Solana, every wallet is public. Join one holder chat, and the whole room can see your balance, your trades, and your next move.
+[0:13] Parhelion fixes that. You prove you hold the bag, without ever showing which wallet is yours. The group learns one fact. Nothing else.
+[0:23] Here's the app. Connect any Solana wallet, then pick a token and a threshold. Say, a thousand SOL.
+[0:31] Sign once. It's a free message, not a transaction. Parhelion checks your balance on-chain, and issues a proof.
+[0:39] Anyone can verify it, with no wallet needed. Valid. And your wallet? Not included.
+[0:46] For communities, there's the Telegram bot. An admin gates the group with a single command.
+[0:53] When someone asks to join, the bot sends them a link to get their proof.
+[0:59] They paste it in, and they're approved automatically. The admins never see a wallet.
+[1:06] On Discord, any role becomes a holder role. Members run slash verify with their proof, and get the role instantly.
+[1:15] When the proof expires, the role is removed. So your holders are always real.
+[1:23] Projects can create a gate in seconds, and share it with their community.
+[1:33] Creating a gate costs a small fee in $PRHL. Part of every fee is burned on-chain, in the same transaction.
+[1:45] And everything is documented: how it works, the bots, the burn, and the roadmap.
+[1:57] Parhelion. Prove you're a whale. Stay invisible.

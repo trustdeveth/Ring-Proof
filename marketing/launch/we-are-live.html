@@ -1,0 +1,66 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@500;600&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root{--ink:#0b0b0f;--aqua:#7adcff;--pink:#ff8ad0;--hot:#ff3d8b;--yellow:#ffd23f;--blue:#2f5cff;--mint:#9ff0c4;--lilac:#c9b8ff;--orange:#ffa25c;--display:'Bricolage Grotesque',sans-serif}
+*{margin:0;box-sizing:border-box}html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ink)}
+.sc{position:absolute;inset:0;overflow:hidden}
+.big{font:800 300px/.9 var(--display);letter-spacing:-.05em;color:var(--ink)}
+.h{font:800 140px/1 var(--display);letter-spacing:-.04em;color:var(--ink)}
+.hl{display:inline-block;padding:0 .14em;border-radius:.18em;border:6px solid var(--ink);box-shadow:9px 9px 0 var(--ink);background:#fff}
+.chip{display:inline-flex;align-items:center;gap:12px;height:66px;padding:0 30px;border:5px solid var(--ink);border-radius:99px;font:800 26px var(--display);text-transform:uppercase;background:#fff;box-shadow:6px 6px 0 var(--ink)}
+.card{position:absolute;padding:34px 40px;border:5px solid var(--ink);border-radius:30px;box-shadow:10px 10px 0 var(--ink);font:800 58px var(--display)}
+.card small{display:block;font:600 26px 'Instrument Sans';margin-top:8px}
+.dot{width:20px;height:20px;border-radius:50%;background:#22c55e;border:4px solid var(--ink)}
+.c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+</style></head><body>
+<section class="sc" id="s1" style="background:var(--ink)"><div class="c"><div id="cd" class="big" style="color:var(--yellow);font-size:420px">3</div></div></section>
+<section class="sc" id="s2" style="background:var(--yellow)">
+  <img id="sun" src="assets/sun.png" style="position:absolute;left:660px;top:150px;width:600px">
+  <div class="c" style="top:640px;place-items:start center"><div><span class="chip" id="chip"><i class="dot"></i>Now live on Solana</span></div></div>
+</section>
+<section class="sc" id="s3" style="background:var(--aqua)"><div class="c"><div><div class="h" id="w1">Parhelion</div><div class="big" style="margin-top:20px"><span class="hl" id="w2">is live.</span></div></div></div>
+  <img id="wh" src="assets/whale-shades-3q.png" style="position:absolute;right:60px;bottom:-20px;width:460px;rotate:-6deg"></section>
+<section class="sc" id="s4" style="background:var(--cream,#fff4de)">
+  <div class="c" style="place-items:start center;top:90px"><div class="h" style="font-size:110px">Everything is <span class="hl" style="background:var(--yellow)">live.</span></div></div>
+  <div class="card f" style="left:150px;top:400px;background:var(--aqua);rotate:-2deg">Private proofs<small>Prove the bag. Wallet hidden.</small></div>
+  <div class="card f" style="left:1010px;top:380px;background:var(--pink);rotate:2deg">Telegram bot<small>Holders approved automatically.</small></div>
+  <div class="card f" style="left:190px;top:700px;background:var(--lilac);rotate:1.5deg">Discord bot<small>Holder roles by proof.</small></div>
+  <div class="card f" style="left:1050px;top:700px;background:var(--orange);rotate:-1.5deg">$PRHL fee burn 🔥<small>Burned on-chain, every gate.</small></div>
+</section>
+<section class="sc" id="s5" style="background:var(--ink)"><div class="c"><div>
+  <div id="tk" style="font:800 330px/.9 var(--display);letter-spacing:-.05em;color:var(--yellow);text-shadow:14px 14px 0 var(--hot)">$PRHL</div>
+  <div style="margin-top:50px"><span class="chip" id="ca" style="font-size:30px;text-transform:none;font-family:'JetBrains Mono',monospace;font-weight:700">CA: Egrhk6dQek74CP9Z7bRbkFLfNAtXQUxd6Dy3hP2Apump</span></div></div></div></section>
+<section class="sc" id="s6" style="background:var(--yellow)"><div class="c"><div>
+  <div class="big" style="font-size:250px">Go <span class="hl" id="anon">anon.</span></div>
+  <div id="cta" style="margin-top:50px;font:800 52px var(--display)">Prove you're a whale. Stay invisible.</div>
+  <div id="cta2" style="margin-top:30px"><span class="chip" style="background:var(--ink);color:var(--yellow)">Launch app →</span> &nbsp; <span class="chip">@parhelioninwork</span></div></div></div>
+  <img id="wh2" src="assets/whale-shades-front.png" style="position:absolute;right:80px;bottom:60px;width:360px;rotate:6deg"></section>
+<script>
+const tl=gsap.timeline({paused:true})
+const wipe=(s,at)=>{gsap.set(s,{clipPath:'circle(0% at 50% 50%)'});tl.to(s,{clipPath:'circle(80% at 50% 50%)',duration:.6,ease:'power4.inOut'},at)}
+// countdown 0-3
+;['3','2','1'].forEach((n,i)=>{tl.call(()=>document.getElementById('cd').textContent=n,null,i);tl.fromTo('#cd',{scale:1.8,autoAlpha:0},{scale:1,autoAlpha:1,duration:.45,ease:'back.out(2)'},i);tl.to('#cd',{scale:.6,autoAlpha:0,duration:.3},i+.7)})
+tl.call(()=>document.getElementById('cd').textContent='3',null,0)
+wipe('#s2',2.9)
+tl.fromTo('#sun',{scale:0,rotate:-200},{scale:1,rotate:0,duration:1.1,ease:'back.out(1.6)'},3.1)
+tl.fromTo('#chip',{y:60,autoAlpha:0},{y:0,autoAlpha:1,duration:.5,ease:'back.out(2)'},3.9)
+wipe('#s3',5.6)
+tl.fromTo('#w1',{yPercent:100,autoAlpha:0},{yPercent:0,autoAlpha:1,duration:.7,ease:'expo.out'},5.9)
+tl.fromTo('#w2',{scale:.2,rotate:-20,autoAlpha:0},{scale:1,rotate:-2,autoAlpha:1,duration:.7,ease:'back.out(2)'},6.3)
+tl.fromTo('#wh',{x:700},{x:0,duration:1.1,ease:'expo.out'},6.6)
+wipe('#s4',9.2)
+tl.fromTo('.f',{y:500,rotate:10},{y:0,rotate:(i)=>[-2,2,1.5,-1.5][i],duration:.8,ease:'expo.out',stagger:.45},9.6)
+wipe('#s5',14.6)
+tl.fromTo('#tk',{yPercent:-120,autoAlpha:0},{yPercent:0,autoAlpha:1,duration:.9,ease:'bounce.out'},14.9)
+tl.fromTo('#ca',{scale:0},{scale:1,duration:.5,ease:'back.out(2)'},16)
+wipe('#s6',18.6)
+tl.fromTo('#anon',{scale:.2,rotate:-20},{scale:1,rotate:-2,duration:.7,ease:'back.out(2)'},19)
+tl.fromTo('#cta',{y:30,autoAlpha:0},{y:0,autoAlpha:1,duration:.6},19.6)
+tl.fromTo('#cta2',{y:30,autoAlpha:0},{y:0,autoAlpha:1,duration:.6},20.0)
+tl.fromTo('#wh2',{y:600,rotate:30},{y:0,rotate:6,duration:1,ease:'expo.out'},19.4)
+tl.to({},{duration:.01},25)
+window.DURATION=25;window.seek=t=>{tl.seek(t,false)}
+Promise.all([document.fonts.ready,...[...document.images].map(i=>i.decode().catch(()=>{}))]).then(()=>{tl.seek(0);document.body.dataset.ready='1'})
+</script></body></html>

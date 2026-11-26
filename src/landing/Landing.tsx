@@ -77,6 +77,30 @@ function Nav() {
   )
 }
 
+export const CA = 'Egrhk6dQek74CP9Z7bRbkFLfNAtXQUxd6Dy3hP2Apump'
+
+/** The contract address, click to copy. Shown in full on wide screens, shortened on phones. */
+function CopyCA() {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      type="button"
+      className="ca__v ca__copy"
+      title="Copy contract address"
+      onClick={() => {
+        navigator.clipboard?.writeText(CA).then(() => {
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1600)
+        })
+      }}
+    >
+      <span className="ca__full">{CA}</span>
+      <span className="ca__short">{CA.slice(0, 6)}…{CA.slice(-6)}</span>
+      <span className="ca__hint">{copied ? 'Copied ✓' : 'Copy'}</span>
+    </button>
+  )
+}
+
 function Hero() {
   return (
     <section className="hero" id="top" data-theme="aqua">
@@ -116,7 +140,7 @@ function Hero() {
         </div>
         <div className="ca" data-intro="fade">
           <span className="ca__k">CA</span>
-          <span className="ca__v">coming soon</span>
+          <CopyCA />
           <span className="ca__socials">
             <a href="https://x.com/parhelioninwork" target="_blank" rel="noopener noreferrer" aria-label="Parhelion on X">
               <Ico.X />
@@ -413,8 +437,11 @@ function Token() {
       </div>
       <div className="ca ca--dark" data-fade>
         <span className="ca__k">CA</span>
-        <span className="ca__v">coming soon — never trust a CA from DMs</span>
+        <CopyCA />
       </div>
+      <p className="ca-warn" data-fade>
+        Only trust this address. Never a CA sent in DMs.
+      </p>
     </section>
   )
 }

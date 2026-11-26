@@ -1,0 +1,52 @@
+1
+00:00:00,000 --> 00:00:01,950
+So this is what we've been building.
+
+2
+00:00:02,400 --> 00:00:03,300
+Parhelion.
+
+3
+00:00:03,500 --> 00:00:06,150
+Today, to get into a holder chat on Solana,
+
+4
+00:00:06,250 --> 00:00:08,950
+you show your wallet and the whole room sees your bag.
+
+5
+00:00:10,150 --> 00:00:11,950
+Yeah, that's the worst part.
+
+6
+00:00:12,950 --> 00:00:14,150
+Parhelion fixes that.
+
+7
+00:00:14,350 --> 00:00:15,750
+You sign once, you get a proof.
+
+8
+00:00:16,150 --> 00:00:17,650
+And there's no wallet in it.
+
+9
+00:00:18,450 --> 00:00:19,100
+None.
+
+10
+00:00:19,200 --> 00:00:21,450
+The group learns one fact: that you qualify.
+
+11
+00:00:21,700 --> 00:00:25,150
+Our Telegram and Discord bots even let holders in automatically.
+
+12
+00:00:25,550 --> 00:00:26,750
+It's live on Solana.
+
+13
+00:00:26,900 --> 00:00:27,850
+Go anon.
+

@@ -1,0 +1,59 @@
+1
+00:00:00,400 --> 00:00:02,270
+This is Parhelion.
+
+2
+00:00:04,200 --> 00:00:12,170
+On Solana, every wallet is public. Join one holder chat, and the whole room can see your balance, your trades, and your next move.
+
+3
+00:00:13,800 --> 00:00:21,980
+Parhelion fixes that. You prove you hold the bag, without ever showing which wallet is yours. The group learns one fact. Nothing else.
+
+4
+00:00:23,600 --> 00:00:30,150
+Here's the app. Connect any Solana wallet, then pick a token and a threshold. Say, a thousand SOL.
+
+5
+00:00:31,000 --> 00:00:38,030
+Sign once. It's a free message, not a transaction. Parhelion checks your balance on-chain, and issues a proof.
+
+6
+00:00:39,200 --> 00:00:44,980
+Anyone can verify it, with no wallet needed. Valid. And your wallet? Not included.
+
+7
+00:00:46,200 --> 00:00:51,430
+For communities, there's the Telegram bot. An admin gates the group with a single command.
+
+8
+00:00:53,400 --> 00:00:57,100
+When someone asks to join, the bot sends them a link to get their proof.
+
+9
+00:00:59,400 --> 00:01:04,220
+They paste it in, and they're approved automatically. The admins never see a wallet.
+
+10
+00:01:06,600 --> 00:01:13,340
+On Discord, any role becomes a holder role. Members run slash verify with their proof, and get the role instantly.
+
+11
+00:01:15,600 --> 00:01:20,500
+When the proof expires, the role is removed. So your holders are always real.
+
+12
+00:01:23,200 --> 00:01:27,020
+Projects can create a gate in seconds, and share it with their community.
+
+13
+00:01:33,600 --> 00:01:40,030
+Creating a gate costs a small fee in $PRHL. Part of every fee is burned on-chain, in the same transaction.
+
+14
+00:01:45,800 --> 00:01:50,960
+And everything is documented: how it works, the bots, the burn, and the roadmap.
+
+15
+00:01:57,400 --> 00:02:00,830
+Parhelion. Prove you're a whale. Stay invisible.

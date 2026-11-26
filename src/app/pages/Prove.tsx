@@ -8,9 +8,29 @@ import ProofTicket from '../ProofTicket'
 import { SOL_ASSET, presetsFor, type Asset } from '../tokens'
 
 type Phase = { kind: 'idle' } | { kind: 'running'; step: number } | { kind: 'done'; proof: ProofRecord }
+type Source = 'public' | 'ring' | 'zk'
+
+const RING_STEPS = [
+  { label: 'Unlock Privacy Ring', detail: 'one wallet signature · keys stay in this tab' },
+  { label: 'Read & decrypt your notes', detail: 'decrypted locally' },
+  { label: 'Sign challenge', detail: 'proves this wallet · not a transaction' },
+  { label: 'Check notes on-chain & seal', detail: 'unspent + in the Ring · claim only' },
+]
+const ZK_STEPS = [
+  { label: 'Unlock Privacy Ring', detail: 'one wallet signature · keys stay in this tab' },
+  { label: 'Read & decrypt your notes', detail: 'decrypted locally' },
+  { label: 'Fetch Ring tree paths', detail: 'Merkle + non-inclusion witnesses' },
+  { label: 'Generate zero-knowledge proof', detail: 'in your browser · ~5–20 s' },
+  { label: 'Verify & seal', detail: 'Parhelion sees the proof only' },
+]
+const SOURCE_NOTE: Record<Source, string> = {
+  public: 'Signing is free and is not a transaction. Nothing about your wallet is stored.',
+  ring: 'Proves a balance held privately in a Helius Privacy Ring. Your notes are decrypted in this tab; Parhelion checks them once and stores nothing.',
+  zk: 'Zero-knowledge: your browser proves the Ring balance. Parhelion receives only the proof — no wallet, no notes, no amounts.',
+}
 
 export default function Prove() {
-  const { owner, signMessage } = useOwner()
+  const { owner, signMessage, signMessageDetailed, walletName } = useOwner()
   const [params] = useSearchParams()
   const gateToken = params.get('gate') ?? undefined
   const gate = useMemo(() => (gateToken ? peekGate(gateToken) : null), [gateToken])
@@ -22,6 +42,8 @@ export default function Prove() {
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' })
   const [error, setError] = useState<string | null>(null)
   const [held, setHeld] = useState<string | null>(null)
+  const [source, setSource] = useState<Source>('public')
+  const steps = source === 'public' ? PROOF_STEPS : source === 'ring' ? RING_STEPS : ZK_STEPS
 
   // a gate fixes the token and the minimum
   useEffect(() => {
@@ -49,7 +71,7 @@ export default function Prove() {
 
   const n = Number(min) || 0
   const belowGate = gate ? n < Number(gate.m) : false
-  const qualifies = held !== null ? Number(held) >= n : null
+  const qualifies = source === 'public' && held !== null ? Number(held) >= n : null
   const busy = phase.kind === 'running'
 
   const run = async () => {
@@ -57,9 +79,14 @@ export default function Prove() {
     setError(null)
     try {
       setPhase({ kind: 'running', step: 0 })
-      const proof = await generateProof(owner, signMessage, { asset, min, expiryDays: expiry, gateToken }, (step) =>
-        setPhase({ kind: 'running', step }),
-      )
+      const onStep = (step: number) => setPhase({ kind: 'running', step })
+      const req = { asset, min, expiryDays: expiry, gateToken }
+      const proof =
+        source === 'public'
+          ? await generateProof(owner, signMessage, req, onStep)
+          : source === 'ring'
+            ? await (await import('../ring')).proveFromRing(owner, signMessage, signMessageDetailed, walletName, req, onStep)
+            : await (await import('../zk')).proveWithZk(owner, signMessage, signMessageDetailed, walletName, { ...req, gateId: gate?.id }, onStep)
       setPhase({ kind: 'done', proof })
       toast('Proof issued')
     } catch (e) {
@@ -94,6 +121,22 @@ export default function Prove() {
       <div className="split-2">
         <section className="sheet form" data-anim>
           <div className="field">
+            <span className="field__label label">Balance source</span>
+            <Segmented
+              label="Balance source"
+              value={source}
+              onChange={(v) => {
+                setSource(v)
+                setError(null)
+              }}
+              options={[
+                { value: 'public', label: 'Public wallet' },
+                { value: 'ring', label: 'Privacy Ring' },
+                { value: 'zk', label: 'Zero-knowledge' },
+              ]}
+            />
+          </div>
+          <div className="field">
             <span className="field__label label">Token</span>
             <AssetPicker
               value={asset}
@@ -109,7 +152,7 @@ export default function Prove() {
             <label className="field__label label" htmlFor="thr">
               Holds at least
               <span className="field__hint mono">
-                {held !== null && asset ? `your wallet: ${Number(held).toLocaleString('en-US', { maximumFractionDigits: 4 })} ${asset.symbol}` : ''}
+                {source === 'public' && held !== null && asset ? `your wallet: ${Number(held).toLocaleString('en-US', { maximumFractionDigits: 4 })} ${asset.symbol}` : ''}
               </span>
             </label>
             <AmountInput
@@ -144,7 +187,7 @@ export default function Prove() {
               {belowGate ? (
                 <span className="bad">✕ The gate needs at least {gate!.m} {gate!.s}.</span>
               ) : qualifies === null ? (
-                'Checked on-chain when you sign.'
+                source === 'public' ? 'Checked on-chain when you sign.' : 'Checked against your private Ring notes.'
               ) : qualifies ? (
                 <span className="good">✓ Your wallet qualifies</span>
               ) : (
@@ -155,16 +198,16 @@ export default function Prove() {
 
           {error && <p className="form-error">{error}</p>}
           <button className="btn btn--ink btn--block" disabled={busy || !asset || n <= 0 || belowGate || qualifies === false} onClick={run}>
-            <span className="btn__label">{busy ? 'Working…' : qualifies === false ? 'Balance too low' : 'Sign & generate proof'}</span>
+            <span className="btn__label">{busy ? 'Working…' : qualifies === false ? 'Balance too low' : source === 'zk' ? 'Generate zero-knowledge proof' : 'Sign & generate proof'}</span>
           </button>
-          <p className="fine mono">Signing is free and is not a transaction. Nothing about your wallet is stored.</p>
+          <p className="fine mono">{SOURCE_NOTE[source]}</p>
         </section>
 
         <aside className="sheet side" data-anim>
           {phase.kind === 'idle' && (
             <div className="side__idle">
               <span className="label">How it works</span>
-              <Steps steps={PROOF_STEPS} current={-1} />
+              <Steps steps={steps} current={-1} />
               <p className="muted small-p">
                 The proof states the claim and an expiry. Whoever checks it learns nothing about which wallet holds
                 the tokens, or how many above the threshold.
@@ -173,8 +216,8 @@ export default function Prove() {
           )}
           {phase.kind === 'running' && (
             <div>
-              <span className="label">{phase.step === 1 ? 'Check your wallet' : 'Working'}</span>
-              <Steps steps={PROOF_STEPS} current={phase.step} />
+              <span className="label">{(source === 'public' ? phase.step === 1 : phase.step === 0 || (source === 'ring' && phase.step === 2)) ? 'Check your wallet' : 'Working'}</span>
+              <Steps steps={steps} current={phase.step} />
               <div className="noise-bar" aria-hidden="true" />
             </div>
           )}

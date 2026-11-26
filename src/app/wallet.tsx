@@ -117,8 +117,21 @@ function WalletModal({ onClose }: { onClose: () => void }) {
 
 /** Connected address + helpers used across pages. */
 export function useOwner() {
-  const { publicKey, connected, disconnect, signMessage, wallet } = useWallet()
+  const { publicKey, connected, disconnect, signMessage, signTransaction, wallet } = useWallet()
   const owner = connected && publicKey ? publicKey.toBase58() : null
+  /** Like signMessage, but also returns the bytes the wallet says it signed (Wallet Standard), for diagnostics. */
+  const signMessageDetailed = async (message: Uint8Array): Promise<{ signature: Uint8Array; signedMessage: Uint8Array }> => {
+    type Std = { features?: Record<string, { signMessage?: (i: { account: unknown; message: Uint8Array }) => Promise<{ signature: Uint8Array; signedMessage: Uint8Array }[]> }>; accounts?: { address: string }[] }
+    const std = (wallet?.adapter as unknown as { wallet?: Std } | undefined)?.wallet
+    const feature = std?.features?.['solana:signMessage']
+    const account = std?.accounts?.find((a) => a.address === owner)
+    if (feature?.signMessage && account) {
+      const [out] = await feature.signMessage({ account, message })
+      return { signature: out.signature, signedMessage: out.signedMessage ?? message }
+    }
+    if (!signMessage) throw new Error('This wallet cannot sign messages.')
+    return { signature: await signMessage(message), signedMessage: message }
+  }
   return {
     owner,
     label: owner ? short(owner) : null,
@@ -126,5 +139,7 @@ export function useOwner() {
     walletIcon: wallet?.adapter.icon,
     disconnect,
     signMessage,
+    signMessageDetailed: signMessage ? signMessageDetailed : undefined,
+    signTransaction,
   }
 }

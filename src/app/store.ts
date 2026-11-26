@@ -15,6 +15,8 @@ export type ProofRecord = {
   expiresAt: number
   gateId?: string
   gateName?: string
+  /** Balance source: absent = public wallet, ring = Privacy Ring (attested), zk = zero-knowledge. */
+  src?: 'ring' | 'zk'
 }
 
 export type GateRecord = {
@@ -27,6 +29,9 @@ export type GateRecord = {
   platform: 'telegram' | 'discord'
   room: string
   createdAt: number
+  /** $PRHL fee payment for this gate (tx signature) and how much of it was burned (UI units). */
+  feeTx?: string
+  burnedUi?: string
 }
 
 export type WalletState = { proofs: ProofRecord[]; gates: GateRecord[] }

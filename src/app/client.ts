@@ -1,5 +1,8 @@
 import { update, type GateRecord, type ProofRecord } from './store'
 import type { Asset } from './tokens'
+import { Buffer } from 'buffer'
+import { PublicKey, type Transaction } from '@solana/web3.js'
+import { buildFeeTx, type FeeQuote } from './fee'
 
 /**
  * Parhelion client — production.
@@ -22,14 +25,14 @@ export const PROOF_STEPS: Step[] = [
 
 export class ClientError extends Error {
   constructor(
-    public code: 'INSUFFICIENT' | 'REJECTED' | 'NO_SIGN' | 'BAD_INPUT' | 'NETWORK',
+    public code: 'INSUFFICIENT' | 'REJECTED' | 'NO_SIGN' | 'BAD_INPUT' | 'NETWORK' | 'FEE_PENDING',
     message: string,
   ) {
     super(message)
   }
 }
 
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
+export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   let r: Response
   try {
     r = await fetch(path, { ...init, headers: { 'content-type': 'application/json', ...init?.headers } })
@@ -39,6 +42,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const data = (await r.json().catch(() => ({}))) as { error?: string; code?: string }
   if (!r.ok) {
     if (data.code === 'INSUFFICIENT') throw new ClientError('INSUFFICIENT', data.error ?? 'Balance too low.')
+    if (data.code === 'FEE_PENDING') throw new ClientError('FEE_PENDING', data.error ?? 'Waiting for the fee payment to confirm.')
     throw new ClientError(r.status >= 500 ? 'NETWORK' : 'BAD_INPUT', data.error ?? `Server error (${r.status}).`)
   }
   return data as T
@@ -48,7 +52,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 /* config, assets, balances                                            */
 /* ------------------------------------------------------------------ */
 
-export type AppConfig = { proofMint: string | null; network: string }
+export type AppConfig = { proofMint: string | null; network: string; telegramBot?: string | null; discordInstall?: string | null }
 let configPromise: Promise<AppConfig> | null = null
 export const getConfig = () => (configPromise ??= api<AppConfig>('/api/config').catch(() => ({ proofMint: null, network: 'mainnet' })))
 
@@ -76,9 +80,9 @@ export async function getBalances(owner: string, extra?: string): Promise<Balanc
 
 export type ProofRequest = { asset: Asset; min: string; expiryDays: 1 | 7 | 30; gateToken?: string }
 
-type ProofPayload = { id: string; a: string; s: string; m: string; iat: number; exp: number; g?: string; gn?: string }
+export type ProofPayload = { id: string; a: string; s: string; m: string; iat: number; exp: number; g?: string; gn?: string; src?: 'ring' | 'zk' }
 
-const toB64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
+export const toB64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
 
 export async function generateProof(
   owner: string,
@@ -90,27 +94,13 @@ export async function generateProof(
   if (!(Number(req.min) > 0)) throw new ClientError('BAD_INPUT', 'Pick an amount above zero.')
 
   onStep(0)
-  const ch = await api<{ ts: number; nonce: string; message: string }>('/api/challenge', {
-    method: 'POST',
-    body: JSON.stringify({ owner }),
-  })
-
-  onStep(1)
-  let signature: Uint8Array
-  try {
-    signature = await signMessage(new TextEncoder().encode(ch.message))
-  } catch {
-    throw new ClientError('REJECTED', 'Signature request was declined in your wallet.')
-  }
+  const signed = await signChallenge(owner, signMessage, () => onStep(1))
 
   onStep(2)
   const res = await api<{ code: string; proof: ProofPayload }>('/api/attest', {
     method: 'POST',
     body: JSON.stringify({
-      owner,
-      ts: ch.ts,
-      nonce: ch.nonce,
-      signature: toB64(signature),
+      ...signed,
       asset: req.asset.asset,
       min: req.min,
       expiryDays: req.expiryDays,
@@ -119,10 +109,32 @@ export async function generateProof(
   })
 
   onStep(3)
-  const p = res.proof
+  const rec = recordProof(owner, res.code, res.proof)
+  onStep(PROOF_STEPS.length)
+  return rec
+}
+
+/** Gets a one-time challenge and has the wallet sign it (proves control of `owner`). */
+export async function signChallenge(owner: string, signMessage: (m: Uint8Array) => Promise<Uint8Array>, beforeSign?: () => void) {
+  const ch = await api<{ ts: number; nonce: string; message: string }>('/api/challenge', {
+    method: 'POST',
+    body: JSON.stringify({ owner }),
+  })
+  beforeSign?.()
+  let signature: Uint8Array
+  try {
+    signature = await signMessage(new TextEncoder().encode(ch.message))
+  } catch {
+    throw new ClientError('REJECTED', 'Signature request was declined in your wallet.')
+  }
+  return { owner, ts: ch.ts, nonce: ch.nonce, signature: toB64(signature) }
+}
+
+/** Stores an issued proof on this device. */
+export function recordProof(owner: string, code: string, p: ProofPayload): ProofRecord {
   const rec: ProofRecord = {
     id: p.id,
-    code: res.code,
+    code,
     asset: p.a,
     symbol: p.s,
     min: p.m,
@@ -130,9 +142,9 @@ export async function generateProof(
     expiresAt: p.exp,
     gateId: p.g,
     gateName: p.gn,
+    ...(p.src ? { src: p.src } : {}),
   }
-  update(owner, (st) => ({ ...st, proofs: [rec, ...st.proofs].slice(0, 100) }))
-  onStep(PROOF_STEPS.length)
+  update(owner, (st) => ({ ...st, proofs: [rec, ...st.proofs.filter((x) => x.id !== rec.id)].slice(0, 100) }))
   return rec
 }
 
@@ -162,14 +174,57 @@ export function claimText(p: { symbol: string; min: string }) {
 
 type GatePayload = { id: string; name: string; a: string; s: string; m: string; platform: 'telegram' | 'discord'; room: string; iat: number }
 
+export type FeeInfo = FeeQuote
+/** Current gate fee (null when gates are free). */
+export async function getFeeQuote(): Promise<FeeQuote | null> {
+  const q = await api<FeeQuote | { enabled: false }>('/api/fee')
+  return q.enabled ? q : null
+}
+
+const fmtUnits = (base: string, decimals: number) => {
+  const s = base.padStart(decimals + 1, '0')
+  const i = s.slice(0, s.length - decimals)
+  const f = s.slice(s.length - decimals).replace(/0+$/, '')
+  return Number(i).toLocaleString('en-US') + (f ? `.${f}` : '')
+}
+
+/** Builds, signs (wallet) and relays the fee transaction. Returns its signature. */
+export async function payGateFee(owner: string, signTransaction: (tx: Transaction) => Promise<Transaction>): Promise<{ sig: string; burnedUi: string }> {
+  const q = await getFeeQuote()
+  if (!q) throw new ClientError('BAD_INPUT', 'Gate fees are not enabled.')
+  let signed: Transaction
+  try {
+    signed = await signTransaction(buildFeeTx(new PublicKey(owner), q))
+  } catch {
+    throw new ClientError('REJECTED', 'Payment cancelled in your wallet.')
+  }
+  const { signature } = await api<{ signature: string }>('/api/fee', {
+    method: 'POST',
+    body: JSON.stringify({ tx: Buffer.from(signed.serialize()).toString('base64') }),
+  })
+  return { sig: signature, burnedUi: `${fmtUnits(q.burn, q.decimals)} ${q.symbol}` }
+}
+
 export async function createGate(
   owner: string,
   g: { name: string; asset: Asset; min: string; platform: 'telegram' | 'discord'; room: string },
+  fee?: { sig: string; burnedUi: string },
 ): Promise<GateRecord> {
-  const res = await api<{ token: string; gate: GatePayload }>('/api/gate', {
-    method: 'POST',
-    body: JSON.stringify({ name: g.name, asset: g.asset.asset, min: g.min, platform: g.platform, room: g.room }),
-  })
+  const body = JSON.stringify({ name: g.name, asset: g.asset.asset, min: g.min, platform: g.platform, room: g.room, feeTx: fee?.sig })
+  let res: { token: string; gate: GatePayload } | null = null
+  // the fee transaction needs a few seconds to confirm: retry while the server says it is pending
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await api<{ token: string; gate: GatePayload }>('/api/gate', { method: 'POST', body })
+      break
+    } catch (e) {
+      if (e instanceof ClientError && e.code === 'FEE_PENDING' && attempt < 30) {
+        await new Promise((r) => setTimeout(r, 2000))
+        continue
+      }
+      throw e
+    }
+  }
   const rec: GateRecord = {
     id: res.gate.id,
     token: res.token,
@@ -180,6 +235,7 @@ export async function createGate(
     platform: res.gate.platform,
     room: res.gate.room,
     createdAt: res.gate.iat,
+    ...(fee ? { feeTx: fee.sig, burnedUi: fee.burnedUi } : {}),
   }
   update(owner, (st) => ({ ...st, gates: [rec, ...st.gates] }))
   return rec
@@ -204,5 +260,5 @@ export function peekGate(token: string): GatePayload | null {
 
 export const gateLink = (token: string) => `${window.location.origin}/app/prove?gate=${encodeURIComponent(token)}`
 
-export const BOT_HANDLE = 'ParhelionBot'
-export const botLink = (payload: string) => `https://t.me/${BOT_HANDLE}?start=${payload.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64)}`
+/** Telegram bot link, when the deployment has a bot connected (see /api/config). */
+export const botLink = (username: string) => `https://t.me/${username}`

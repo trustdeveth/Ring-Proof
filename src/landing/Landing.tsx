@@ -67,6 +67,7 @@ function Nav() {
           <a href="#uses">Uses</a>
           <a href="#token">{TICKER}</a>
           <a href="#faq">FAQ</a>
+          <a href="/docs">Docs</a>
         </nav>
         <a className="btn btn--ink btn--sm" href="/app" data-magnetic>
           <span className="btn__label">Launch app</span>
@@ -385,7 +386,7 @@ function Projects() {
 function Token() {
   const rows = [
     { t: 'Pay to gate', d: `After launch, projects pay in ${TICKER} to create gates.`, tone: 'yellow' },
-    { t: 'Buyback & burn', d: 'A share of every fee buys back and burns supply.', tone: 'pink' },
+    { t: 'Burned on-chain', d: 'A share of every gate fee is burned in the same transaction.', tone: 'pink' },
     { t: 'Hold = free proofs', d: `Holding ${TICKER} unlocks free proofs and premium tiers.`, tone: 'aqua' },
   ]
   return (
@@ -471,6 +472,9 @@ function Footer() {
         <div className="hero__cta center" data-fade>
           <Btn href="/app" kind="ink">
             Launch app <Arrow />
+          </Btn>
+          <Btn href="/docs" kind="white">
+            Read the docs
           </Btn>
           <Btn href="https://x.com/parhelioninwork" kind="white">
             <Ico.X /> Follow

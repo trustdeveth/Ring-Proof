@@ -14,7 +14,13 @@ function vercelApiDev(): Plugin {
       server.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/api/')) return next()
         const route = req.url.split('?')[0].replace(/^\/api\//, '').replace(/\/$/, '')
-        const file = path.resolve(server.config.root, 'api', `${route}.ts`)
+        let file = path.resolve(server.config.root, 'api', `${route}.ts`)
+        // dynamic segment, like Vercel: api/spr/[method].ts serves /api/spr/<anything>
+        if (!fs.existsSync(file) && route.includes('/')) {
+          const dir = path.resolve(server.config.root, 'api', route.slice(0, route.lastIndexOf('/')))
+          const dyn = fs.existsSync(dir) ? fs.readdirSync(dir).find((f) => /^\[[a-z]+\]\.ts$/i.test(f)) : undefined
+          if (dyn) file = path.join(dir, dyn)
+        }
         if (route.startsWith('_') || !fs.existsSync(file)) {
           res.statusCode = 404
           return res.end(JSON.stringify({ error: 'Not found' }))
@@ -49,11 +55,30 @@ function vercelApiDev(): Plugin {
   }
 }
 
+
+/**
+ * @lightprotocol/hasher.rs (Helius Privacy Rings' Poseidon) loads its wasm with `new URL('x.wasm', import.meta.url)`,
+ * which Vite leaves as-is. Ship those files next to the chunks so the URL resolves in production.
+ */
+function lightHasherWasm(): Plugin {
+  const files = ['light_wasm_hasher_bg.wasm', 'hasher_wasm_simd_bg.wasm']
+  return {
+    name: 'light-hasher-wasm',
+    apply: 'build',
+    generateBundle() {
+      for (const f of files) {
+        const src = path.resolve('node_modules/@lightprotocol/hasher.rs/dist', f)
+        if (fs.existsSync(src)) this.emitFile({ type: 'asset', fileName: `assets/${f}`, source: fs.readFileSync(src) })
+      }
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   // make server-only vars from .env / .env.local visible to api/ in dev, like Vercel does
   const env = loadEnv(mode, process.cwd(), '')
   for (const [k, v] of Object.entries(env)) if (!(k in process.env)) process.env[k] = v
   return {
-    plugins: [react(), vercelApiDev()],
+    plugins: [react(), vercelApiDev(), lightHasherWasm()],
   }
 })

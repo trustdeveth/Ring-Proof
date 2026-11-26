@@ -102,6 +102,9 @@ export default function Verify() {
             <div className="verdict__ok">
               <Stamp kind="valid">Valid</Stamp>
               <p className="verdict__claim">{claimText({ symbol: res.s, min: res.m })}</p>
+              <p className="mono small-p">
+                Source: {res.src === 'zk' ? 'Privacy Ring · zero-knowledge proof' : res.src === 'ring' ? 'Privacy Ring (private balance)' : 'Public wallet balance'}
+              </p>
               <dl className="kv mono">
                 <dt>Token</dt>
                 <dd>{res.a === 'SOL' ? 'SOL (native)' : short(res.a, 6)}</dd>

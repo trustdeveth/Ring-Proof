@@ -9,6 +9,7 @@ export type ProofPayload = {
   exp: number
   g?: string // gate id
   gn?: string // gate name
+  src?: 'ring' | 'zk' // balance source: absent = public wallet, ring = Privacy Ring (attested), zk = zero-knowledge
 }
 
 /** Gate config (prefix rg1). A gate is just a signed rule: no storage needed. */

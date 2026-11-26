@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useOwner } from '../wallet'
+import { getAsset } from '../client'
 import { useWalletState } from '../store'
 import { useBalances } from '../hooks'
 import { claimText } from '../client'
@@ -72,24 +74,7 @@ export default function Vault() {
           </div>
         </section>
 
-        <section className="sheet ledger-card ledger-card--ring" data-anim>
-          <div className="sheet__head">
-            <span className="label">Privacy Rings</span>
-            <span className="tagline">● integration in progress</span>
-          </div>
-          <p className="ring-next">
-            Next: shield tokens into a Helius Privacy Ring so even your balance is encrypted on-chain — and prove it
-            with zero-knowledge, so not even Parhelion sees it.
-          </p>
-          <ul className="ring-list mono">
-            <li>
-              <span>Today</span> Parhelion checks your public balance once, then issues a proof without your wallet in it.
-            </li>
-            <li>
-              <span>Next</span> Shielding + zero-knowledge proofs over Privacy Ring balances.
-            </li>
-          </ul>
-        </section>
+        <RingCard owner={owner} />
       </div>
 
       <section className="sheet activity" data-anim>
@@ -122,5 +107,84 @@ export default function Vault() {
         )}
       </section>
     </div>
+  )
+}
+
+type RingRow = { mint: string; symbol: string; amount: string }
+
+/** Privacy Ring balances, decrypted in this tab after one wallet signature. Nothing is sent to Parhelion. */
+function RingCard({ owner }: { owner: string | null }) {
+  const { signMessage, signMessageDetailed, walletName } = useOwner()
+  const [rows, setRows] = useState<RingRow[] | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const unlock = async () => {
+    if (!owner) return
+    setBusy(true)
+    setError(null)
+    try {
+      const ring = await import('../ring')
+      const s = await ring.openRing(owner, signMessage, signMessageDetailed, walletName)
+      await ring.syncRing(s)
+      const out: RingRow[] = []
+      for (const b of ring.ringBalances(s)) {
+        const a = await getAsset(b.mint).catch(() => null)
+        const dec = a?.decimals ?? 0
+        const whole = b.amount / 10n ** BigInt(dec)
+        const frac = dec ? (b.amount % 10n ** BigInt(dec)).toString().padStart(dec, '0').slice(0, 4).replace(/0+$/, '') : ''
+        out.push({ mint: b.mint, symbol: a?.symbol ?? b.mint.slice(0, 4), amount: `${whole.toLocaleString('en-US')}${frac ? `.${frac}` : ''}` })
+      }
+      setRows(out)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not read your Privacy Ring.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="sheet ledger-card ledger-card--ring" data-anim>
+      <div className="sheet__head">
+        <span className="label">Privacy Ring</span>
+        <span className="tagline">● encrypted on-chain · decrypted only here</span>
+      </div>
+      {rows === null ? (
+        <>
+          <p className="ring-next">
+            Balances you hold in a Helius Privacy Ring are encrypted on-chain. Unlock to read them in this tab, then prove them
+            privately, or with zero-knowledge so not even Parhelion sees the notes.
+          </p>
+          <button className="btn btn--ink btn--sm" onClick={unlock} disabled={busy || !owner}>
+            <span className="btn__label">{busy ? 'Decrypting…' : 'Unlock Privacy Ring'}</span>
+          </button>
+        </>
+      ) : rows.length === 0 ? (
+        <p className="ring-next">No private balance in your Privacy Ring yet.</p>
+      ) : (
+        <table className="balances">
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.mint}>
+                <th>{r.symbol}</th>
+                <td>{r.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {error && <p className="form-error">{error}</p>}
+      <ul className="ring-list mono">
+        <li>
+          <span>Ring</span> Prove a private balance — checked once, nothing stored.
+        </li>
+        <li>
+          <span>ZK</span> Your browser proves it; Parhelion sees only the proof.
+        </li>
+      </ul>
+      <Link className="fine mono linkish" to="/app/prove">
+        Prove from your Ring →
+      </Link>
+    </section>
   )
 }

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useOwner } from '../wallet'
 import { useWalletState, type GateRecord } from '../store'
-import { BOT_HANDLE, ClientError, claimText, createGate, forgetGate, gateLink } from '../client'
+import { ClientError, botLink, claimText, createGate, forgetGate, gateLink, getFeeQuote, payGateFee, type FeeInfo } from '../client'
+import { useConfig } from '../hooks'
 import { AmountInput, AssetPicker, CopyButton, PageHead, Segmented, timeAgo, toast } from '../ui'
 import { SOL_ASSET, presetsFor, type Asset } from '../tokens'
 
@@ -10,8 +11,16 @@ function botCommand(g: GateRecord) {
 }
 
 export default function Gates() {
-  const { owner } = useOwner()
+  const { owner, signTransaction } = useOwner()
   const st = useWalletState(owner)
+  const [quote, setQuote] = useState<FeeInfo | null | undefined>(undefined)
+  const [stage, setStage] = useState<string | null>(null)
+  useEffect(() => {
+    getFeeQuote().then(setQuote, () => setQuote(null))
+  }, [])
+  const cfg = useConfig()
+  const bot = cfg?.telegramBot ?? null
+  const discord = cfg?.discordInstall ?? null
   const [name, setName] = useState('')
   const [asset, setAsset] = useState<Asset | null>(SOL_ASSET)
   const [min, setMin] = useState('10')
@@ -27,16 +36,26 @@ export default function Gates() {
     setError(null)
     setBusy(true)
     try {
-      await createGate(owner, { name: name.trim(), asset, min, platform, room: room.trim() })
-      toast('Gate created — share the holder link')
+      let fee: { sig: string; burnedUi: string } | undefined
+      if (quote) {
+        if (!signTransaction) throw new ClientError('NO_SIGN', 'This wallet cannot sign transactions.')
+        setStage('Confirm the fee in your wallet…')
+        fee = await payGateFee(owner, signTransaction)
+        setStage('Confirming payment on Solana…')
+      }
+      await createGate(owner, { name: name.trim(), asset, min, platform, room: room.trim() }, fee)
+      toast(fee ? `Gate created · ${fee.burnedUi} burned 🔥` : 'Gate created — share the holder link')
       setName('')
       setRoom('')
     } catch (e) {
       setError(e instanceof ClientError ? e.message : 'Could not create the gate.')
     } finally {
       setBusy(false)
+      setStage(null)
     }
   }
+
+  const feeUi = quote ? `${Number(quote.feeUi).toLocaleString('en-US')} ${quote.symbol}` : null
 
   return (
     <div className="gates">
@@ -104,17 +123,28 @@ export default function Gates() {
           </div>
           <div className="fee mono">
             <span>Gate fee</span>
-            <b>
-              Free <small>· $PRHL fee starts at token launch</small>
-            </b>
+            {quote ? (
+              <b>
+                {feeUi} <small>· {quote.burnBps / 100}% burned on-chain, {100 - quote.burnBps / 100}% to the treasury</small>
+              </b>
+            ) : (
+              <b>{quote === undefined ? '…' : 'Free'}</b>
+            )}
           </div>
           {error && <p className="form-error">{error}</p>}
           <button className="btn btn--ink btn--block" disabled={!valid || busy} onClick={submit}>
-            <span className="btn__label">{busy ? 'Creating…' : 'Create gate'}</span>
+            <span className="btn__label">{busy ? stage ?? 'Creating…' : quote ? `Pay ${feeUi} & create gate` : 'Create gate'}</span>
           </button>
           <p className="fine mono">
-            A gate is a signed rule — nothing is stored on our side. Until @{BOT_HANDLE} is live, check proofs on the
-            Verify page.
+            A gate is a signed rule. Telegram groups and Discord roles are enforced automatically by{' '}
+            {bot ? (
+              <a className="linkish" href={botLink(bot)} target="_blank" rel="noreferrer">
+                @{bot}
+              </a>
+            ) : (
+              'the Parhelion bot'
+            )}
+            ; anywhere else, check proofs on the Verify page.
           </p>
         </section>
 
@@ -140,15 +170,53 @@ export default function Gates() {
                   </dd>
                   <dt>Gate ID</dt>
                   <dd>#{g.id}</dd>
+                  {g.feeTx && (
+                    <>
+                      <dt>Fee</dt>
+                      <dd>
+                        🔥 {g.burnedUi} burned ·{' '}
+                        <a className="linkish" href={`https://solscan.io/tx/${g.feeTx}`} target="_blank" rel="noreferrer">
+                          tx ↗
+                        </a>
+                      </dd>
+                    </>
+                  )}
                 </dl>
-                <div className="gate__how mono">
-                  <span>1. Post the holder link</span>
-                  <span>2. Members open it, sign, and send you their proof</span>
-                  <span>3. Paste proofs into Verify — it shows this gate’s name</span>
-                </div>
+                {g.platform === 'telegram' && bot ? (
+                  <div className="gate__how mono">
+                    <span>
+                      1. Add{' '}
+                      <a className="linkish" href={botLink(bot)} target="_blank" rel="noreferrer">
+                        @{bot}
+                      </a>{' '}
+                      to the group as admin (“Invite users via link”)
+                    </span>
+                    <span>2. Paste the bot command in the group</span>
+                    <span>3. Share the invite link the bot replies with — members prove in DM and are let in automatically</span>
+                  </div>
+                ) : g.platform === 'discord' && discord ? (
+                  <div className="gate__how mono">
+                    <span>
+                      1.{' '}
+                      <a className="linkish" href={discord} target="_blank" rel="noreferrer">
+                        Add the Parhelion bot
+                      </a>{' '}
+                      to your server, and put its role above {g.room || 'the holder role'}
+                    </span>
+                    <span>2. Run the bot command in any channel and pick the role</span>
+                    <span>3. Members press “Get my proof”, then /verify — the role is given and removed when the proof expires</span>
+                  </div>
+                ) : (
+                  <div className="gate__how mono">
+                    <span>1. Post the holder link</span>
+                    <span>2. Members open it, sign, and send you their proof</span>
+                    <span>3. Paste proofs into Verify — it shows this gate’s name</span>
+                  </div>
+                )}
                 <div className="gate__actions">
                   <CopyButton text={gateLink(g.token)} label="Copy holder link" className="btn btn--ink btn--sm" />
-                  <CopyButton text={botCommand(g)} label="Copy bot command" />
+                  {g.platform === 'telegram' && <CopyButton text={botCommand(g)} label="Copy bot command" />}
+                  {g.platform === 'discord' && <CopyButton text={`/gate token:${g.token}`} label="Copy bot command" />}
                   <button
                     className="linkish mono forget"
                     onClick={() => {

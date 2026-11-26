@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { botLink, claimText } from './client'
+import { useConfig } from './hooks'
 import type { ProofRecord } from './store'
 import { CopyButton, Stamp, timeLeft } from './ui'
 
@@ -16,6 +17,7 @@ export default function ProofTicket({ proof, animate = true, compact = false }: 
     return () => ctx.revert()
   }, [animate])
 
+  const bot = useConfig()?.telegramBot
   const expired = proof.expiresAt < Date.now()
   return (
     <div className={`ticket ${compact ? 'ticket--compact' : ''} ${expired ? 'is-expired' : ''}`} ref={ref}>
@@ -34,6 +36,10 @@ export default function ProofTicket({ proof, animate = true, compact = false }: 
           <dd>
             {new Date(proof.expiresAt).toLocaleDateString()} · {timeLeft(proof.expiresAt)}
           </dd>
+        </div>
+        <div className="ticket__row">
+          <dt>Source</dt>
+          <dd>{proof.src === 'zk' ? 'Privacy Ring · zero-knowledge' : proof.src === 'ring' ? 'Privacy Ring' : 'Public wallet'}</dd>
         </div>
         {proof.gateName && (
           <div className="ticket__row">
@@ -62,9 +68,11 @@ export default function ProofTicket({ proof, animate = true, compact = false }: 
       </code>
       <div className="ticket__actions">
         <CopyButton text={proof.code} label="Copy proof" className="btn btn--ink btn--sm" />
-        <a className="btn btn--line btn--sm" href={botLink(`p_${proof.id}`)} target="_blank" rel="noreferrer">
-          <span className="btn__label">Open Telegram bot ↗</span>
-        </a>
+        {bot && (
+          <a className="btn btn--line btn--sm" href={botLink(bot)} target="_blank" rel="noreferrer">
+            <span className="btn__label">Send to @{bot} ↗</span>
+          </a>
+        )}
       </div>
       {!compact && (
         <div className="ticket__stamp">

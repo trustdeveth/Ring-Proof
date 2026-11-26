@@ -4,7 +4,7 @@ import { RpcError, SOL, assetInfo, fromBaseUnits, holding } from './_lib/solana.
 
 /**
  * GET /api/balance?owner=<address>[&asset=<mint>] — public balances for the user's own dashboard:
- * SOL, plus $PROOF when PROOF_MINT is set, plus one extra mint if asked. Read-only, not an RPC proxy.
+ * SOL, plus $PRHL when PROOF_MINT is set, plus one extra mint if asked. Read-only, not an RPC proxy.
  */
 export async function GET(req: Request) {
   const url = new URL(req.url)

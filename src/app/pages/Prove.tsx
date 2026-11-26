@@ -78,7 +78,7 @@ export default function Prove() {
             Say one thing. <em>Nothing else.</em>
           </>
         }
-        lead="Sign once with your wallet. RingProof checks your balance on-chain and issues a proof that never mentions your wallet."
+        lead="Sign once with your wallet. Parhelion checks your balance on-chain and issues a proof that never mentions your wallet."
       />
 
       {gate && (

@@ -7,7 +7,7 @@ import { scroll } from '../three/scroll'
 
 const Scene = lazy(() => import('../three/Scene'))
 
-const TICKER = '$PROOF'
+const TICKER = '$PRHL'
 const pad = (n: number) => String(n).padStart(2, '0')
 
 /* ------------------------------------------------------------------ */
@@ -16,7 +16,12 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 function Btn({ href, children, kind = 'ink', size }: { href: string; children: ReactNode; kind?: 'ink' | 'yellow' | 'white' | 'pink'; size?: 'sm' }) {
   return (
-    <a className={`btn btn--${kind} ${size ? 'btn--sm' : ''}`} href={href} data-magnetic>
+    <a
+      className={`btn btn--${kind} ${size ? 'btn--sm' : ''}`}
+      href={href}
+      data-magnetic
+      {...(href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
       <span className="btn__label">{children}</span>
     </a>
   )
@@ -53,8 +58,8 @@ function Nav() {
   return (
     <header className="nav">
       <div className="nav__pill">
-        <a href="#top" className="brand" aria-label="RingProof home">
-          <Logo size={26} /> RingProof
+        <a href="#top" className="brand" aria-label="Parhelion home">
+          <Logo size={26} /> Parhelion
         </a>
         <nav className="nav__links">
           <a href="#problem">Why</a>
@@ -112,11 +117,8 @@ function Hero() {
           <span className="ca__k">CA</span>
           <span className="ca__v">coming soon</span>
           <span className="ca__socials">
-            <a href="#" aria-label="X (Twitter)">
+            <a href="https://x.com/parhelioninwork" target="_blank" rel="noopener noreferrer" aria-label="Parhelion on X">
               <Ico.X />
-            </a>
-            <a href="#" aria-label="Telegram">
-              <Ico.Telegram />
             </a>
           </span>
         </div>
@@ -216,7 +218,7 @@ function How() {
   const active = p < 0.34 ? 0 : p < 0.67 ? 1 : 2
   const steps = [
     ['Sign', 'Connect a wallet and sign a free message. No transaction, nothing moves.'],
-    ['Prove', 'RingProof reads your balance on-chain once and seals a proof of the claim only: “holds ≥ X”.'],
+    ['Prove', 'Parhelion reads your balance on-chain once and seals a proof of the claim only: “holds ≥ X”.'],
     ['Pass', 'Drop the proof in the group. Valid in milliseconds. Wallet, balance, history: hidden.'],
   ]
   return (
@@ -284,7 +286,7 @@ function Disclosure() {
             <span className="fact__v">Token · threshold · valid · expiry</span>
           </div>
           <div className="fact card">
-            <span className="fact__k">RingProof checks</span>
+            <span className="fact__k">Parhelion checks</span>
             <span className="fact__v">Your balance, once — nothing stored</span>
           </div>
           <div className="fact card">
@@ -306,7 +308,7 @@ function Uses() {
     { t: 'Allowlists', d: 'Mint and presale access by proof. No wallet connect, no screenshot farming.', i: <Ico.List />, tone: 'pink' },
     { t: 'Holder perks', d: 'Roles, drops and early access for real holders — without a list of their wallets.', i: <Ico.Gift />, tone: 'aqua' },
     { t: 'Proof of funds', d: 'Show an OTC desk you can cover the block without opening your books.', i: <Ico.Vault />, tone: 'mint' },
-    { t: 'Any token', d: 'SOL, $PROOF or any SPL token. Projects pick the mint and the threshold.', i: <Ico.Coins />, tone: 'lilac' },
+    { t: 'Any token', d: 'SOL, $PRHL or any SPL token. Projects pick the mint and the threshold.', i: <Ico.Coins />, tone: 'lilac' },
     { t: 'Fresh proofs', d: 'Checked on-chain when issued, expires in 1–30 days. No stale screenshots.', i: <Ico.Clock />, tone: 'orange' },
   ]
   return (
@@ -355,7 +357,7 @@ function Projects() {
           </span>
           <div>
             <b>Whale Room</b>
-            <small>4,207 members · gated by RingProof</small>
+            <small>4,207 members · gated by Parhelion</small>
           </div>
         </div>
         <div className="chat__body">
@@ -366,7 +368,7 @@ function Projects() {
             <small>anon_42 · just now</small>
           </div>
           <div className="bubble bubble--bot" data-msg>
-            <b>RingProofBot</b>
+            <b>ParhelionBot</b>
             <span>
               Proof valid: holds ≥ 1,000,000 {TICKER}. Wallet: hidden. Welcome in.
             </span>
@@ -437,11 +439,10 @@ function Accordion({ q, a }: { q: string; a: string }) {
 
 function Faq() {
   const qs = [
-    ['Is my wallet really hidden?', 'From the group, yes: the proof only says you meet the threshold. To issue it, RingProof reads your public balance once and stores nothing. Next on the roadmap: Helius Privacy Rings with zero-knowledge proofs, so not even RingProof sees your balance.'],
-    ['What does the group learn?', 'Only that a RingProof proof is valid for token X and threshold Y, and when it expires. Not your wallet, not your exact balance, not your history.'],
-    ['Do I give up custody?', 'Never. Your tokens never move. You sign a free message — not a transaction — and RingProof never asks for a private key.'],
+    ['Is my wallet really hidden?', 'From the group, yes: the proof only says you meet the threshold. To issue it, Parhelion reads your public balance once and stores nothing. Next on the roadmap: Helius Privacy Rings with zero-knowledge proofs, so not even Parhelion sees your balance.'],
+    ['What does the group learn?', 'Only that a Parhelion proof is valid for token X and threshold Y, and when it expires. Not your wallet, not your exact balance, not your history.'],
+    ['Do I give up custody?', 'Never. Your tokens never move. You sign a free message — not a transaction — and Parhelion never asks for a private key.'],
     ['Can someone reuse my proof?', 'A proof can be shared by whoever holds it, so each one has a one-time ID and an expiry. Groups should admit each proof ID once.'],
-    ['Is it audited?', "Not yet — RingProof has not had an external audit. Helius reports its Privacy Rings programs were audited by Certora, ZK Security and OtterSec; RingProof's zero-knowledge circuits will be audited before they ship."],
   ]
   return (
     <section className="section faq" id="faq" data-theme="cream">
@@ -471,19 +472,16 @@ function Footer() {
           <Btn href="/app" kind="ink">
             Launch app <Arrow />
           </Btn>
-          <Btn href="#" kind="white">
+          <Btn href="https://x.com/parhelioninwork" kind="white">
             <Ico.X /> Follow
-          </Btn>
-          <Btn href="#" kind="white">
-            <Ico.Telegram /> Telegram
           </Btn>
         </div>
       </div>
       <div className="footer__bottom">
         <span className="brand">
-          <Logo size={22} /> RingProof
+          <Logo size={22} /> Parhelion
         </span>
-        <span>Not affiliated with Helius. {TICKER} is a memecoin with utility, not an investment. DYOR.</span>
+        <span>Built on Helius · Powered by Solana</span>
       </div>
     </footer>
   )
@@ -584,7 +582,7 @@ function useChoreography(ready: boolean) {
         scrollTrigger: { trigger: '[data-chat]', start: 'top 70%', once: true },
       })
 
-      /* ---- $PROOF letters bounce as you scroll ---- */
+      /* ---- $PRHL letters bounce as you scroll ---- */
       gsap.fromTo(
         '.tl',
         { yPercent: 40, rotate: (i) => (i % 2 ? 10 : -10) },

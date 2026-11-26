@@ -1,0 +1,5 @@
+Mode: built-in image generation.
+Reference: parhelion-logo-lowered-ring.png (user-approved mascot).
+Banner prompt: Create a professional 3:1 Twitter banner preserving the approved golden sun, pixel shades, smirk, and lowered pink foreground orbit. Place mascot at right, PARHELION in bold geometric black type at center-left, and Prove you hold. Stay anon. below. Use aqua background, subtle tonal orbital arc, pink accent rule, generous spacing, and a clear lower-left area for profile overlap. No extra decorations or text.
+Export: parhelion-twitter-banner.png, 1500 x 500.
+Logo source copied unchanged to parhelion-logo.png; resized exports are parhelion-token.png (512), apple-touch-icon.png (180), favicon.png (32).

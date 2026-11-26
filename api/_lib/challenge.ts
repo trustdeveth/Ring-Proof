@@ -18,7 +18,7 @@ export function challengeMessage(owner: string, domain: string, nonce: string, t
     `${domain} wants you to prove you control this Solana wallet.`,
     '',
     `Wallet: ${owner}`,
-    'Purpose: issue a RingProof holder proof',
+    'Purpose: issue a Parhelion holder proof',
     `Nonce: ${nonce}`,
     `Issued At: ${new Date(ts).toISOString()}`,
     '',
@@ -42,6 +42,6 @@ export function verifyWalletSignature(owner: string, message: string, signatureB
 
 /** Domain the message is bound to — the host the request was sent to. */
 export function domainOf(req: Request) {
-  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? 'ringproof'
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? 'parhelion'
   return host.split(',')[0].trim().slice(0, 100)
 }

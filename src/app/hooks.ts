@@ -10,7 +10,7 @@ export function useConfig() {
   return cfg
 }
 
-/** Assets offered by default: SOL and $PROOF once its mint is configured. */
+/** Assets offered by default: SOL and $PRHL once its mint is configured. */
 export function useDefaultAssets() {
   const cfg = useConfig()
   const [proof, setProof] = useState<Asset | null>(null)
@@ -46,7 +46,7 @@ export function useMintLookup(mint: string) {
   return state
 }
 
-/** Live public balances for the connected wallet (SOL, $PROOF if configured). */
+/** Live public balances for the connected wallet (SOL, $PRHL if configured). */
 export function useBalances(owner: string | null) {
   const [rows, setRows] = useState<Balance[] | null>(null)
   const [error, setError] = useState<string | null>(null)

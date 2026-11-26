@@ -14,7 +14,7 @@ function secret(): string {
   const s = process.env.PROOF_SECRET
   if (s && s.length >= 32) return s
   if (process.env.VERCEL_ENV === 'production') throw new Error('PROOF_SECRET is missing or shorter than 32 characters')
-  return 'ringproof-local-dev-secret-not-for-production-use'
+  return 'parhelion-local-dev-secret-not-for-production-use'
 }
 
 export const b64u = (bytes: Uint8Array) =>

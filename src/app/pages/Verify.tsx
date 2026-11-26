@@ -4,7 +4,7 @@ import { claimText, verifyProof, type VerifyResult } from '../client'
 import { PageHead, Stamp, Steps, timeLeft } from '../ui'
 import { short } from '../tokens'
 
-const VERIFY_STEPS = [{ label: 'Decode proof' }, { label: 'Check RingProof seal' }, { label: 'Check expiry' }]
+const VERIFY_STEPS = [{ label: 'Decode proof' }, { label: 'Check Parhelion seal' }, { label: 'Check expiry' }]
 
 export default function Verify() {
   const { hash } = useLocation()
@@ -49,7 +49,7 @@ export default function Verify() {
             Check a proof. <em>Learn one fact.</em>
           </>
         }
-        lead="Paste a RingProof proof. You'll see the claim and whether it's valid — never the wallet, amount or history behind it."
+        lead="Paste a Parhelion proof. You'll see the claim and whether it's valid — never the wallet, amount or history behind it."
       />
       <div className="split-2">
         <section className="sheet form" data-anim>
@@ -94,7 +94,7 @@ export default function Verify() {
             <div className="side__idle">
               <span className="label">Verdict</span>
               <p className="verdict__wait">Awaiting a proof.</p>
-              <p className="muted small-p">Verification runs on the RingProof server and needs no wallet.</p>
+              <p className="muted small-p">Verification runs on the Parhelion server and needs no wallet.</p>
             </div>
           )}
           {netError && <p className="form-error">{netError}</p>}

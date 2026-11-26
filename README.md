@@ -1,4 +1,4 @@
-# RingProof
+# Parhelion
 
 Private holder proofs for Solana. Landing page at `/`, app at `/app`, backend in `api/` — one Vercel project, no other hosting or database.
 
@@ -9,7 +9,7 @@ Private holder proofs for Solana. Landing page at `/`, app at `/app`, backend in
 3. `/api/attest` checks the signature, reads the wallet's **real on-chain balance** (SOL or any SPL / Token-2022 mint) and, if it meets the claim, seals a proof with `PROOF_SECRET`.
 4. The proof (`rp2_…`) contains the token, threshold, expiry and optional gate — **never the wallet or balance**. Anyone can check it at `/app/verify` or `POST /api/verify`.
 
-The RingProof server sees the wallet during step 3 and stores nothing. Zero-knowledge proofs over Helius Privacy Rings — where not even RingProof sees the balance — are the next milestone.
+The Parhelion server sees the wallet during step 3 and stores nothing. Zero-knowledge proofs over Helius Privacy Rings — where not even Parhelion sees the balance — are the next milestone.
 
 Gates are signed rules (`rg1_…`), also stateless: a project creates one, shares the holder link, and proofs issued through it are bound to that gate.
 
@@ -32,7 +32,7 @@ npm run dev     # site, app and /api on http://localhost:5173
 | --- | --- | --- |
 | `PROOF_SECRET` | **yes** | 32+ random characters, e.g. `openssl rand -base64 48`. In production the API refuses to issue proofs without it. **Changing it invalidates every issued proof and gate link.** |
 | `SOLANA_RPC_URL` | **yes** | Your Helius mainnet URL `https://mainnet.helius-rpc.com/?api-key=…`. Server-side only. |
-| `PROOF_MINT` | after launch | The $PROOF mint address. Adds $PROOF to the app's token picker and balances. |
+| `PROOF_MINT` | after launch | The $PRHL mint address. Adds $PRHL to the app's token picker and balances. |
 
 3. Deploy, then open `https://<your-domain>/api/health` — it must say `"ready": true`.
 4. Recommended: Vercel → Firewall → add a rate-limit rule for `/api/attest` and `/api/challenge`.
@@ -60,4 +60,4 @@ npm run dev     # site, app and /api on http://localhost:5173
 
 1. Telegram bot — webhook at `/api/telegram`, one-time proof IDs stored in Vercel Blob.
 2. Helius Privacy Rings (`@heliuslabs/spr`) — shielding, encrypted balances; test on devnet first.
-3. RingProof zero-knowledge circuit over ring notes, then an external audit.
+3. Parhelion zero-knowledge circuit over ring notes, then an external audit.

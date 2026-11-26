@@ -42,11 +42,11 @@ export async function assetInfo(asset: string): Promise<AssetInfo> {
   if (asset === SOL) return { asset: SOL, decimals: 9, symbol: 'SOL', name: 'Solana' }
   const supply = await rpc<{ value: { decimals: number } }>('getTokenSupply', [asset])
   const info: AssetInfo = { asset, decimals: supply.value.decimals, symbol: `${asset.slice(0, 4)}…${asset.slice(-4)}` }
-  if (process.env.PROOF_MINT && asset === process.env.PROOF_MINT) info.symbol = '$PROOF'
+  if (process.env.PROOF_MINT && asset === process.env.PROOF_MINT) info.symbol = '$PRHL'
   try {
     const a = await rpc<{ content?: { metadata?: { symbol?: string; name?: string } } }>('getAsset', { id: asset })
     const sym = a.content?.metadata?.symbol?.trim()
-    if (sym && info.symbol !== '$PROOF') info.symbol = sym.slice(0, 16)
+    if (sym && info.symbol !== '$PRHL') info.symbol = sym.slice(0, 16)
     if (a.content?.metadata?.name) info.name = a.content.metadata.name.slice(0, 40)
   } catch {
     /* DAS not available on this RPC — keep the short mint */

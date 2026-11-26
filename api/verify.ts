@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const b = await readJson<{ code?: string }>(req)
   if (!b || typeof b.code !== 'string' || b.code.length > 6000) return json({ error: 'Send { code }.' }, 400)
   const code = b.code.trim()
-  if (!code.startsWith('rp2_')) return json({ ok: false, reason: 'Not a RingProof proof. It should start with rp2_.' })
+  if (!code.startsWith('rp2_')) return json({ ok: false, reason: 'Not a Parhelion proof. It should start with rp2_.' })
   const p = await open<ProofPayload>('rp2', code)
   if (!p) return json({ ok: false, reason: 'Signature check failed. This proof was altered or forged.' })
   if (p.v !== 2) return json({ ok: false, reason: 'Unsupported proof version.' })

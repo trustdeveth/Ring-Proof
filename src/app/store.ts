@@ -32,7 +32,7 @@ export type GateRecord = {
 export type WalletState = { proofs: ProofRecord[]; gates: GateRecord[] }
 
 const fresh = (): WalletState => ({ proofs: [], gates: [] })
-const KEY = (owner: string) => `ringproof.v2.${owner}`
+const KEY = (owner: string) => `parhelion.v2.${owner}`
 const cache = new Map<string, WalletState>()
 const listeners = new Set<() => void>()
 

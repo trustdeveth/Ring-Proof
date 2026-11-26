@@ -105,7 +105,7 @@ export default function Gates() {
           <div className="fee mono">
             <span>Gate fee</span>
             <b>
-              Free <small>· $PROOF fee starts at token launch</small>
+              Free <small>· $PRHL fee starts at token launch</small>
             </b>
           </div>
           {error && <p className="form-error">{error}</p>}

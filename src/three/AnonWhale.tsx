@@ -9,7 +9,7 @@ import { useFrame } from '@react-three/fiber'
  * nose points along +X. In lathe space: world-up = -X, belly = +X, sides = ±Z.
  *
  * Driven by a mutable `ctl` object (no React re-renders): shades 0..1 drops the pixel glasses,
- * coins 0..1 shows the orbiting $PROOF bag, swim scales the tail-beat speed.
+ * coins 0..1 shows the orbiting $PRHL bag, swim scales the tail-beat speed.
  */
 
 export type WhaleCtl = { shades: number; coins: number; swim: number; lookX: number; lookY: number }
@@ -308,7 +308,7 @@ function Shades({ radiusAt, groupRef }: { radiusAt: (a: number) => number; group
   )
 }
 
-/** Gold $PROOF coins orbiting the whale — the "exposed bag". */
+/** Gold $PRHL coins orbiting the whale — the "exposed bag". */
 function useCoinMaterials() {
   return useMemo(() => {
     const cv = document.createElement('canvas')

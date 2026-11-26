@@ -124,14 +124,14 @@ function Shell() {
   const needsWallet = !pathname.startsWith('/app/verify')
 
   useEffect(() => {
-    document.title = 'RingProof — App'
+    document.title = 'Parhelion — App'
   }, [])
 
   return (
     <div className="app">
       <header className="topbar">
-        <a href="/" className="brand" aria-label="RingProof home">
-          <Logo size={26} /> RingProof
+        <a href="/" className="brand" aria-label="Parhelion home">
+          <Logo size={26} /> Parhelion
         </a>
         <span className="netpill netpill--live mono" title="Balances are read live from Solana mainnet">
           <i /> Mainnet

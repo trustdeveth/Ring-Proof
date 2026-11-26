@@ -5,7 +5,7 @@ type Line = { t: string; cls?: string; pause?: number }
 /** A receipt that prints out of a slot, line by line, when scrolled into view. */
 export default function ProofReceipt({ ticker }: { ticker: string }) {
   const script: Line[] = [
-    { t: 'RINGPROOF / HOLDER PROOF', cls: 'r-head', pause: 200 },
+    { t: 'PARHELION / HOLDER PROOF', cls: 'r-head', pause: 200 },
     { t: '--------------------------------', cls: 'r-rule', pause: 80 },
     { t: `TOKEN ............ ${ticker}`, pause: 120 },
     { t: 'CLAIM ............ HOLDS >= 1,000,000', pause: 260 },

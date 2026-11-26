@@ -46,7 +46,7 @@ export function Segmented<T extends string | number>({
 }
 
 /**
- * Pick SOL / $PROOF, or paste any SPL mint. Calls onChange(null) while a pasted mint is unresolved.
+ * Pick SOL / $PRHL, or paste any SPL mint. Calls onChange(null) while a pasted mint is unresolved.
  */
 export function AssetPicker({ value, onChange, lockedTo }: { value: Asset | null; onChange: (a: Asset | null) => void; lockedTo?: Asset }) {
   const defaults = useDefaultAssets()

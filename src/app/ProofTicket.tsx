@@ -20,7 +20,7 @@ export default function ProofTicket({ proof, animate = true, compact = false }: 
   return (
     <div className={`ticket ${compact ? 'ticket--compact' : ''} ${expired ? 'is-expired' : ''}`} ref={ref}>
       <div className="ticket__top">
-        <span className="mono">RingProof · holder proof</span>
+        <span className="mono">Parhelion · holder proof</span>
         <span className="mono">#{proof.id}</span>
       </div>
       <div className="ticket__claim">{claimText(proof)}</div>

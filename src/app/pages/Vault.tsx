@@ -79,11 +79,11 @@ export default function Vault() {
           </div>
           <p className="ring-next">
             Next: shield tokens into a Helius Privacy Ring so even your balance is encrypted on-chain — and prove it
-            with zero-knowledge, so not even RingProof sees it.
+            with zero-knowledge, so not even Parhelion sees it.
           </p>
           <ul className="ring-list mono">
             <li>
-              <span>Today</span> RingProof checks your public balance once, then issues a proof without your wallet in it.
+              <span>Today</span> Parhelion checks your public balance once, then issues a proof without your wallet in it.
             </li>
             <li>
               <span>Next</span> Shielding + zero-knowledge proofs over Privacy Ring balances.

@@ -10,7 +10,7 @@ import { getVelocity } from '../lib/smooth'
 /* exposed-balance stickers pinned to points on the whale (whale frame: nose +X, up +Y) */
 const TAGS = [
   { k: 'SOL', v: '1,284.22', pos: [1.35, 1.25, 0.6], tone: 'yellow' },
-  { k: '$PROOF', v: '14,250,000', pos: [-0.35, 1.55, -0.2], tone: 'pink' },
+  { k: '$PRHL', v: '14,250,000', pos: [-0.35, 1.55, -0.2], tone: 'pink' },
   { k: 'Linked wallets', v: '7 found', pos: [0.6, -1.15, 0.7], tone: 'aqua' },
   { k: 'Last buy', v: '2 min ago', pos: [-2.0, 0.35, 0.3], tone: 'white' },
 ] as const

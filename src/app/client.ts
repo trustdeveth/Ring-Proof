@@ -2,9 +2,9 @@ import { update, type GateRecord, type ProofRecord } from './store'
 import type { Asset } from './tokens'
 
 /**
- * RingProof client — production.
+ * Parhelion client — production.
  *
- * Proofs are attestations: the wallet signs a one-time challenge, the RingProof server reads
+ * Proofs are attestations: the wallet signs a one-time challenge, the Parhelion server reads
  * the wallet's real on-chain balance and, if it meets the claim, seals a proof that names the
  * claim only. Verifiers never learn the wallet. (The server sees it during the check and stores
  * nothing.) Zero-knowledge proofs over Helius Privacy Rings replace this step later.
@@ -34,7 +34,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     r = await fetch(path, { ...init, headers: { 'content-type': 'application/json', ...init?.headers } })
   } catch {
-    throw new ClientError('NETWORK', 'Could not reach the RingProof server. Check your connection.')
+    throw new ClientError('NETWORK', 'Could not reach the Parhelion server. Check your connection.')
   }
   const data = (await r.json().catch(() => ({}))) as { error?: string; code?: string }
   if (!r.ok) {
@@ -204,5 +204,5 @@ export function peekGate(token: string): GatePayload | null {
 
 export const gateLink = (token: string) => `${window.location.origin}/app/prove?gate=${encodeURIComponent(token)}`
 
-export const BOT_HANDLE = 'RingProofBot'
+export const BOT_HANDLE = 'ParhelionBot'
 export const botLink = (payload: string) => `https://t.me/${BOT_HANDLE}?start=${payload.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64)}`

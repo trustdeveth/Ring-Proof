@@ -10,7 +10,7 @@ export const isAddress = (s: string) => /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(s)
 /** Quick-pick thresholds per asset. */
 export function presetsFor(a: Asset): number[] {
   if (a.asset === SOL) return [1, 10, 100]
-  if (a.symbol === '$PROOF') return [100_000, 1_000_000, 10_000_000]
+  if (a.symbol === '$PRHL') return [100_000, 1_000_000, 10_000_000]
   return [100, 1_000, 10_000]
 }
 
